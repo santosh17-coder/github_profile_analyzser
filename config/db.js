@@ -35,6 +35,12 @@ console.log("MYSQL_URL provided?", !!process.env.MYSQL_URL);
 console.log("DB_HOST fallback:", process.env.DB_HOST || 'localhost');
 console.log("=====================");
 
+console.log("MYSQLHOST =", process.env.MYSQLHOST);
+console.log("MYSQLPORT =", process.env.MYSQLPORT);
+console.log("MYSQLUSER =", process.env.MYSQLUSER);
+console.log("MYSQLDATABASE =", process.env.MYSQLDATABASE);
+console.log("MYSQL_URL =", process.env.MYSQL_URL);
+
 let finalConfig = poolConfig;
 
 if (connectionString) {
