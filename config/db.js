@@ -26,12 +26,38 @@ if (process.env.NODE_ENV === 'production') {
   poolConfig.ssl = { rejectUnauthorized: false };
 }
 
-// Use Railway's connection URL if provided, otherwise use individual variables
+// Foolproof parsing of the URL
 const connectionString = process.env.MYSQL_URL || process.env.DATABASE_URL;
 
-const pool = connectionString 
-  ? mysql.createPool(connectionString) 
-  : mysql.createPool(poolConfig);
+console.log("=== DB DEBUG INFO ===");
+console.log("MYSQL_URL length:", process.env.MYSQL_URL ? process.env.MYSQL_URL.length : 0);
+console.log("MYSQL_URL provided?", !!process.env.MYSQL_URL);
+console.log("DB_HOST fallback:", process.env.DB_HOST || 'localhost');
+console.log("=====================");
+
+let finalConfig = poolConfig;
+
+if (connectionString) {
+  try {
+    const url = new URL(connectionString);
+    finalConfig = {
+      host: url.hostname,
+      port: url.port ? parseInt(url.port, 10) : 3306,
+      user: url.username,
+      password: url.password,
+      database: url.pathname.replace('/', ''),
+      waitForConnections: true,
+      connectionLimit: 10,
+      queueLimit: 0,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined
+    };
+    console.log("Successfully parsed database URL for host:", finalConfig.host);
+  } catch (err) {
+    console.error("Failed to parse database URL:", err.message);
+  }
+}
+
+const pool = mysql.createPool(finalConfig);
 
 /**
  * Quick connectivity check — called once at server startup so we
