@@ -1,0 +1,191 @@
+{
+	"info": {
+		"name": "GitHub Profile Analyzer",
+		"description": "A backend service that analyzes GitHub user profiles using the public GitHub REST API and stores useful insights in a MySQL database.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "torvalds",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "health"]
+						},
+						"description": "Check if the API server is running and healthy."
+					}
+				}
+			]
+		},
+		{
+			"name": "Profile Analysis",
+			"item": [
+				{
+					"name": "Analyze GitHub Profile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{username}}/analyze",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{username}}", "analyze"]
+						},
+						"description": "Fetch a GitHub user's public profile and repositories, compute insights (total stars, top languages, profile completeness, etc.), and store the results in MySQL.\n\nChange the {{username}} variable to analyze different users."
+					}
+				},
+				{
+					"name": "Analyze - gaearon",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/gaearon/analyze",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "gaearon", "analyze"]
+						},
+						"description": "Analyze Dan Abramov's (React core team) GitHub profile."
+					}
+				},
+				{
+					"name": "Analyze - sindresorhus",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/sindresorhus/analyze",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "sindresorhus", "analyze"]
+						},
+						"description": "Analyze Sindre Sorhus's GitHub profile (prolific open-source contributor)."
+					}
+				},
+				{
+					"name": "Refresh Profile",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{username}}/refresh",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{username}}", "refresh"]
+						},
+						"description": "Re-analyze an already stored profile to get the latest data from GitHub. The profile must have been analyzed at least once before."
+					}
+				}
+			]
+		},
+		{
+			"name": "Profile Retrieval",
+			"item": [
+				{
+					"name": "List All Profiles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=1&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (default: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Results per page (default: 10, max: 100)"
+								},
+								{
+									"key": "search",
+									"value": "",
+									"description": "Search by username, name, location, or company",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieve a paginated list of all previously analyzed GitHub profiles.\n\nSupports optional query parameters:\n- page: Page number\n- limit: Results per page\n- search: Filter by username, name, location, or company"
+					}
+				},
+				{
+					"name": "List Profiles - With Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users?page=1&limit=10&search=linux",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": "linux",
+									"description": "Search keyword — matches username, name, location, company"
+								}
+							]
+						},
+						"description": "Search through stored profiles using a keyword."
+					}
+				},
+				{
+					"name": "Get Single Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{username}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{username}}"]
+						},
+						"description": "Retrieve the stored analysis for a single GitHub user by username."
+					}
+				}
+			]
+		},
+		{
+			"name": "Profile Management",
+			"item": [
+				{
+					"name": "Delete Profile",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/users/{{username}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "users", "{{username}}"]
+						},
+						"description": "Remove a stored profile analysis from the database."
+					}
+				}
+			]
+		}
+	]
+}
