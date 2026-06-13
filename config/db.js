@@ -20,20 +20,18 @@ const pool = mysql.createPool({
 // Test Database Connection
 async function testConnection() {
   try {
-    console.log('=== DATABASE CONFIG ===');
     console.log('HOST:', process.env.MYSQLHOST);
     console.log('PORT:', process.env.MYSQLPORT);
     console.log('DATABASE:', process.env.MYSQLDATABASE);
     console.log('USER:', process.env.MYSQLUSER);
-    console.log('=======================');
 
     const connection = await pool.getConnection();
 
-    console.log('✅ MySQL Connected Successfully');
+    console.log('MySQL Connected Successfully');
 
     connection.release();
   } catch (error) {
-    console.error('❌ MySQL Connection Failed');
+    console.error('MySQL Connection Failed');
     console.error(error);
     throw error;
   }
@@ -83,9 +81,9 @@ async function initializeDatabase() {
       )
     `);
 
-    console.log('✅ github_profiles table ready');
+    console.log('github_profiles table ready');
   } catch (error) {
-    console.error('❌ Failed to create table');
+    console.error('Failed to create table');
     console.error(error);
     throw error;
   }
