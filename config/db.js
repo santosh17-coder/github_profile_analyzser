@@ -21,12 +21,17 @@ const poolConfig = {
   queueLimit: 0,              // unlimited queue (0 = no cap)
 };
 
-// Cloud MySQL providers (like Aiven) require SSL connections
+// Cloud MySQL providers require SSL connections
 if (process.env.NODE_ENV === 'production') {
   poolConfig.ssl = { rejectUnauthorized: false };
 }
 
-const pool = mysql.createPool(poolConfig);
+// Use Railway's connection URL if provided, otherwise use individual variables
+const connectionString = process.env.MYSQL_URL || process.env.DATABASE_URL;
+
+const pool = connectionString 
+  ? mysql.createPool(connectionString) 
+  : mysql.createPool(poolConfig);
 
 /**
  * Quick connectivity check — called once at server startup so we
