@@ -5,19 +5,28 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-// Build the pool from environment variables (falls back to sensible defaults)
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT, 10) || 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'github_analyzer',
+// Build the pool from environment variables
+// Supports both Railway's auto-injected vars (MYSQLHOST etc.)
+// and our custom vars (DB_HOST etc.) as fallbacks
+const poolConfig = {
+  host: process.env.MYSQLHOST || process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.MYSQLPORT || process.env.DB_PORT, 10) || 3306,
+  user: process.env.MYSQLUSER || process.env.DB_USER || 'root',
+  password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || '',
+  database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'github_analyzer',
 
   // Pool-specific settings
   waitForConnections: true,   // queue requests when all connections are busy
   connectionLimit: 10,        // max simultaneous connections
   queueLimit: 0,              // unlimited queue (0 = no cap)
-});
+};
+
+// Cloud MySQL providers (like Aiven) require SSL connections
+if (process.env.NODE_ENV === 'production') {
+  poolConfig.ssl = { rejectUnauthorized: false };
+}
+
+const pool = mysql.createPool(poolConfig);
 
 /**
  * Quick connectivity check — called once at server startup so we
@@ -29,7 +38,7 @@ async function testConnection() {
     console.log('MySQL connected successfully');
     connection.release();
   } catch (error) {
-    console.error('MySQL connection failed:', error.message);
+    console.error('MySQL connection failed:', error);
     process.exit(1);
   }
 }
